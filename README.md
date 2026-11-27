@@ -2,15 +2,15 @@
 
 一个暖色动漫风的「每秒赚多少钱」页面：输入月薪、上班日、上下班时间和午休时长，实时显示本月已赚金额，小兔子每秒飘出 `+¥`。
 
-当前版本：**纯前端 + localStorage**，不需要登录即可使用。后端预留 Supabase，后续可做登录同步。
-
 ## 功能
 
 - 顶部实时日期时间
 - 中间「本月已赚」每秒刷新，非工作时段自动暂停
-- 底部小兔子电脑桌插画，每秒飘出 `+¥`
-- 右上角 ⚙ 按钮打开设置：月薪、每周上班日（点击标亮）、上下班时间、午休时长
-- 配置保存在浏览器 localStorage，刷新不丢
+- 小兔子随机切换 5 种状态（工作 75%，摸鱼 / 打盹 / 喝水 / 刷手机各 6.25%），每 5 分钟一次，图片跟着换
+- 工作时兔子身上每秒飘出 `+¥{每秒单价}`
+- 右上角「设置」打开弹窗：月薪、每周上班日（点击标亮）、上下班时间、午休时长
+- 不登录也能用：配置存在浏览器 localStorage
+- 登录 Supabase 后：配置自动同步到云端，换设备也能用
 
 ## 计算方式
 
@@ -33,23 +33,20 @@ npm run dev
 npm run build
 ```
 
-## Supabase（后续登录同步用）
+## Supabase 接入
 
 前端使用 Publishable key（`sb_publishable_...`）；老项目的 anon key 也兼容。
 
-```bash
-cp .env.example .env
-# 填入 VITE_SUPABASE_URL 和 VITE_SUPABASE_PUBLISHABLE_KEY
-```
+1. 复制 `.env.example` 为 `.env`，填入 `VITE_SUPABASE_URL` 和 `VITE_SUPABASE_PUBLISHABLE_KEY`。
+2. 在 Supabase 控制台 → **SQL Editor** 中执行 `supabase/schema.sql`，创建 `user_settings` 表并开启 RLS。
+3. 重启 `npm run dev`，右上角会出现「登录」。注册或登录后自动从云端读取配置；之后每次点「保存」都会同步到云端。
 
 `secret key` / `service_role` key 绝不能写进前端代码、`.env` 或提交到 GitHub。
 
-## GitHub 推送
+## GitHub
 
-远程仓库尚未创建。请在 GitHub 手动创建空仓库 `makemoney` 后执行：
+远程仓库：`https://github.com/bowen-abab/makemoney`
 
 ```bash
 git push -u origin main
 ```
-
-首次推送会调用浏览器/系统登录窗口，使用 GitHub 账号授权一次即可。

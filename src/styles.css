@@ -73,6 +73,30 @@ button, input { font: inherit; }
   border-bottom: 1px solid var(--accent);
 }
 
+.sync-note,
+.user-email {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.user-email {
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-message {
+  color: var(--accent);
+  font-size: 13px;
+  margin: -4px 0 12px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--line);

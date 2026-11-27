@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import SettingsModal from './components/SettingsModal.jsx'
+import AuthModal from './components/AuthModal.jsx'
 import BunnyScene from './components/BunnyScene.jsx'
 import { loadConfig, saveConfig, getEarnedStats, formatMoney, formatSmall } from './lib/pay.js'
+import { supabase, isSupabaseConfigured } from './lib/supabase.js'
 
 const WEEK_NAMES = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
 
@@ -34,15 +36,67 @@ function formatClock(date) {
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${WEEK_NAMES[date.getDay()]} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
 }
 
+function toRemoteRow(user, config) {
+  return {
+    user_id: user.id,
+    salary: config.salary,
+    workdays: config.workdays,
+    start_time: config.startTime,
+    end_time: config.endTime,
+    break_minutes: config.breakMinutes,
+    updated_at: new Date().toISOString(),
+  }
+}
+
+function fromRemoteRow(row) {
+  return {
+    salary: Number(row.salary),
+    workdays: Array.isArray(row.workdays) ? row.workdays : [],
+    startTime: row.start_time,
+    endTime: row.end_time,
+    breakMinutes: Number(row.break_minutes),
+  }
+}
+
 export default function App() {
   const [config, setConfig] = useState(() => loadConfig())
   const [now, setNow] = useState(() => new Date())
   const [showSettings, setShowSettings] = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
+  const [user, setUser] = useState(null)
+  const [syncNote, setSyncNote] = useState('')
   const [mood, setMood] = useState('work')
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!supabase) return undefined
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const nextUser = session?.user || null
+      setUser(nextUser)
+      if (!nextUser) {
+        setConfig(loadConfig())
+        return
+      }
+      supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', nextUser.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            const remote = fromRemoteRow(data)
+            setConfig(remote)
+            saveConfig(remote)
+          } else {
+            supabase.from('user_settings').upsert(toRemoteRow(nextUser, loadConfig()))
+          }
+        })
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   const stats = getEarnedStats(now, config)
@@ -60,10 +114,20 @@ export default function App() {
     ? MOODS.find((item) => item.key === mood) || MOODS[0]
     : { ...REST_SCENE, label: stats.label }
 
-  const handleSave = (nextConfig) => {
+  const handleSave = async (nextConfig) => {
     saveConfig(nextConfig)
     setConfig(nextConfig)
     setShowSettings(false)
+    if (!user || !supabase) return
+    setSyncNote('同步中…')
+    const { error } = await supabase.from('user_settings').upsert(toRemoteRow(user, nextConfig))
+    setSyncNote(error ? '同步失败' : '已同步到云端')
+  }
+
+  const handleSignOut = async () => {
+    if (!supabase) return
+    await supabase.auth.signOut()
+    setSyncNote('')
   }
 
   return (
@@ -75,6 +139,17 @@ export default function App() {
         </div>
         <div className="topbar-right">
           <time>{formatClock(now)}</time>
+          {syncNote && <span className="sync-note">{syncNote}</span>}
+          {isSupabaseConfigured && (
+            user ? (
+              <>
+                <span className="user-email" title={user.email}>{user.email.split('@')[0]}</span>
+                <button className="text-btn" onClick={handleSignOut}>退出</button>
+              </>
+            ) : (
+              <button className="text-btn" onClick={() => setShowAuth(true)}>登录</button>
+            )
+          )}
           <button className="text-btn" onClick={() => setShowSettings(true)}>
             设置
           </button>
@@ -119,6 +194,8 @@ export default function App() {
           onSave={handleSave}
         />
       )}
+
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </div>
   )
 }
