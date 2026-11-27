@@ -21,6 +21,7 @@ button, input { font: inherit; }
   background:
     radial-gradient(circle at 18% 8%, #ffedd5 0, transparent 45%),
     radial-gradient(circle at 82% 22%, #fce7f3 0, transparent 40%),
+    radial-gradient(circle, rgba(249, 115, 22, 0.07) 1px, transparent 1px) 0 0 / 26px 26px,
     #fff7ed;
 }
 
@@ -91,27 +92,185 @@ button, input { font: inherit; }
 .status-pill.on { background: #dcfce7; color: #166534; }
 .status-pill.off { background: #f1f5f9; color: #64748b; }
 
+/* 温馨的兔子小家 */
 .bunny-scene {
   position: relative;
   margin-top: 28px;
-  margin-bottom: 10px;
-  width: min(190px, 52vw);
+  margin-bottom: 16px;
+  width: min(360px, 92vw);
+  padding: 34px 18px 22px;
+  border-radius: 30px 30px 24px 24px;
+  background:
+    radial-gradient(circle at 12px 12px, rgba(249, 115, 22, 0.1) 1.5px, transparent 1.6px) 0 0 / 24px 24px,
+    linear-gradient(180deg, #fffaf3 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  box-shadow: 0 18px 45px rgba(124, 45, 18, 0.1), inset 0 1px 0 #fff;
+}
+
+.bunny-scene::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42px;
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(180deg, #f6d2b4, #e9b78f);
+  z-index: 0;
+}
+
+.room-window {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  width: 56px;
+  height: 50px;
+  border: 3px solid #f97316;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #bae6fd, #e0f2fe);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.room-window::before,
+.room-window::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 10px;
+  background: #fbcfe8;
+}
+
+.room-window::before { left: -3px; border-radius: 0 8px 8px 0; }
+.room-window::after { right: -3px; border-radius: 8px 0 0 8px; }
+
+.room-shelf {
+  position: absolute;
+  top: 24px;
+  left: 82px;
+  width: 66px;
+  height: 5px;
+  background: #c87a4e;
+  border-radius: 3px;
+  z-index: 1;
+}
+
+.room-shelf span {
+  position: absolute;
+  bottom: 5px;
+  width: 10px;
+  height: 22px;
+  border-radius: 2px 2px 0 0;
+}
+
+.room-shelf span:nth-child(1) { left: 6px; background: #f97316; }
+.room-shelf span:nth-child(2) { left: 18px; background: #f9a8d4; height: 18px; }
+.room-shelf span:nth-child(3) { left: 30px; background: #fbbf24; height: 25px; }
+.room-shelf span:nth-child(4) { left: 42px; background: #fdba74; height: 16px; }
+
+.room-plant {
+  position: absolute;
+  bottom: 26px;
+  right: 18px;
+  width: 30px;
+  height: 44px;
+  z-index: 2;
+}
+
+.room-plant::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 3px;
+  width: 24px;
+  height: 22px;
+  background: #f97316;
+  border-radius: 4px 4px 8px 8px;
+}
+
+.room-plant span {
+  position: absolute;
+  bottom: 18px;
+  width: 12px;
+  height: 20px;
+  background: #86c98f;
+  border-radius: 100% 0 100% 0;
+}
+
+.room-plant span:nth-child(1) { left: 2px; transform: rotate(-25deg); }
+.room-plant span:nth-child(2) { left: 12px; transform: rotate(15deg); }
+.room-plant span:nth-child(3) { left: 8px; bottom: 26px; transform: rotate(-5deg); }
+
+.rug {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72%;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(249, 115, 22, 0.14);
+  border: 2px dashed rgba(194, 100, 50, 0.28);
+  z-index: 1;
 }
 
 .bunny-img {
-  width: 100%;
+  position: relative;
+  z-index: 2;
+  width: min(180px, 50vw);
   height: auto;
   display: block;
-  filter: drop-shadow(0 8px 12px rgba(124, 45, 18, 0.12));
+  margin: 0 auto;
+  filter: drop-shadow(0 8px 12px rgba(124, 45, 18, 0.14));
+  animation: none;
+}
+
+.is-resting .bunny-img { opacity: 0.78; }
+
+.bunny-status {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #fffdf9;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(124, 45, 18, 0.1);
+}
+
+.mood-slack .bunny-status { background: #fdf2f8; border-color: #f9a8d4; color: #9d174d; }
+.mood-yawn .bunny-status { background: #fff7ed; border-color: #fdba74; color: #c2410c; }
+.mood-rest .bunny-status { background: #f1f5f9; border-color: #cbd5e1; color: #64748b; }
+
+.mini-z {
+  color: #f97316;
+  font-weight: 800;
+  animation: zzzFloat 1.4s ease-in-out infinite;
+}
+
+@keyframes zzzFloat {
+  0% { opacity: 0; transform: translateY(4px) scale(0.8); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px) scale(1.1); }
 }
 
 .float-layer {
   position: absolute;
-  top: -8%;
-  left: 32%;
-  width: 50%;
+  top: 12%;
+  left: 38%;
+  width: 46%;
   height: 35%;
   pointer-events: none;
+  z-index: 3;
 }
 
 .money-pop {
@@ -129,96 +288,6 @@ button, input { font: inherit; }
   0% { opacity: 0; transform: translateY(10px) scale(0.9); }
   20% { opacity: 1; }
   100% { opacity: 0; transform: translateY(-46px) scale(1.1); }
-}
-
-.rest-note {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 13px;
-  color: #a9603b;
-  background: #ffedd5;
-  padding: 4px 12px;
-  border-radius: 999px;
-}
-
-.bunny-img {
-  animation: none;
-}
-
-.is-resting .bunny-img {
-  opacity: 0.78;
-}
-
-/* 打字的小爪子 */
-.paw {
-  position: absolute;
-  width: 11%;
-  height: 8%;
-  background: #fff9f2;
-  border: 2px solid #8b5e3c;
-  border-radius: 50% 50% 45% 45%;
-  z-index: 2;
-  box-shadow: 0 2px 0 rgba(139, 94, 60, 0.2);
-}
-
-.paw-left { left: 42%; top: 56%; }
-.paw-right { left: 54%; top: 56%; }
-
-.mood-typing .paw-left { animation: typeLeft 0.32s ease-in-out infinite alternate; }
-.mood-typing .paw-right { animation: typeRight 0.32s ease-in-out infinite alternate 0.16s; }
-
-@keyframes typeLeft {
-  from { transform: translateY(0); }
-  to { transform: translateY(3px); }
-}
-
-@keyframes typeRight {
-  from { transform: translateY(2px); }
-  to { transform: translateY(-1px); }
-}
-
-/* 摸鱼气泡 */
-.slack-bubble,
-.yawn-bubble {
-  position: absolute;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  color: #9a3412;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(124, 45, 18, 0.12);
-}
-
-.slack-bubble { top: 6%; right: -12%; animation: bubbleIn 0.25s ease-out; }
-.yawn-bubble { top: 2%; left: -14%; animation: bubbleIn 0.25s ease-out; }
-
-@keyframes bubbleIn {
-  from { opacity: 0; transform: scale(0.85); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.zzz {
-  font-weight: 800;
-  color: #f97316;
-  animation: zzzFloat 1.4s ease-in-out infinite;
-}
-
-.z2 { animation-delay: 0.2s; }
-.z3 { animation-delay: 0.4s; }
-
-@keyframes zzzFloat {
-  0% { opacity: 0; transform: translateY(4px) scale(0.8); }
-  40% { opacity: 1; }
-  100% { opacity: 0; transform: translateY(-12px) scale(1.1); }
 }
 
 /* 设置弹窗 */

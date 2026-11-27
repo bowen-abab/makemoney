@@ -47,11 +47,15 @@ export default function App() {
         <h1 className="money-value">¥ {formatMoney(stats.earned)}</h1>
         <div className="money-meta">
           <span>每秒 ≈ ¥{formatSmall(stats.perSecond)}</span>
-          <span className={`status-pill ${working ? 'on' : 'off'}`}>{stats.label}</span>
         </div>
       </main>
 
-      <BunnyScene working={working} perSecond={stats.perSecond} tick={now.getTime()} />
+      <BunnyScene
+        working={working}
+        label={stats.label}
+        perSecond={stats.perSecond}
+        tick={now.getTime()}
+      />
 
       {showSettings && (
         <SettingsModal
