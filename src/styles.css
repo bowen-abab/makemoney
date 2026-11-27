@@ -143,18 +143,82 @@ button, input { font: inherit; }
   border-radius: 999px;
 }
 
-.is-working .bunny-img {
-  animation: bob 1s ease-in-out infinite;
+.bunny-img {
+  animation: none;
 }
 
 .is-resting .bunny-img {
   opacity: 0.78;
-  transform: rotate(-2deg);
 }
 
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+/* 打字的小爪子 */
+.paw {
+  position: absolute;
+  width: 11%;
+  height: 8%;
+  background: #fff9f2;
+  border: 2px solid #8b5e3c;
+  border-radius: 50% 50% 45% 45%;
+  z-index: 2;
+  box-shadow: 0 2px 0 rgba(139, 94, 60, 0.2);
+}
+
+.paw-left { left: 42%; top: 56%; }
+.paw-right { left: 54%; top: 56%; }
+
+.mood-typing .paw-left { animation: typeLeft 0.32s ease-in-out infinite alternate; }
+.mood-typing .paw-right { animation: typeRight 0.32s ease-in-out infinite alternate 0.16s; }
+
+@keyframes typeLeft {
+  from { transform: translateY(0); }
+  to { transform: translateY(3px); }
+}
+
+@keyframes typeRight {
+  from { transform: translateY(2px); }
+  to { transform: translateY(-1px); }
+}
+
+/* 摸鱼气泡 */
+.slack-bubble,
+.yawn-bubble {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(124, 45, 18, 0.12);
+}
+
+.slack-bubble { top: 6%; right: -12%; animation: bubbleIn 0.25s ease-out; }
+.yawn-bubble { top: 2%; left: -14%; animation: bubbleIn 0.25s ease-out; }
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.zzz {
+  font-weight: 800;
+  color: #f97316;
+  animation: zzzFloat 1.4s ease-in-out infinite;
+}
+
+.z2 { animation-delay: 0.2s; }
+.z3 { animation-delay: 0.4s; }
+
+@keyframes zzzFloat {
+  0% { opacity: 0; transform: translateY(4px) scale(0.8); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-12px) scale(1.1); }
 }
 
 /* 设置弹窗 */
