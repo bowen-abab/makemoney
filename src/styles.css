@@ -51,8 +51,10 @@ button, input { font: inherit; }
 }
 
 .money-panel {
-  margin-top: 38px;
+  margin-top: 30px;
   text-align: center;
+  width: 100%;
+  padding: 0 12px;
 }
 
 .money-label {
@@ -62,7 +64,7 @@ button, input { font: inherit; }
 }
 
 .money-value {
-  font-size: clamp(48px, 9vw, 88px);
+  font-size: clamp(64px, 12vw, 128px);
   margin: 0;
   font-weight: 800;
   color: #ea580c;
@@ -91,32 +93,34 @@ button, input { font: inherit; }
 
 .bunny-scene {
   position: relative;
-  margin-top: 30px;
-  width: min(420px, 100%);
+  margin-top: 28px;
+  margin-bottom: 10px;
+  width: min(190px, 52vw);
 }
 
-.bunny-svg {
+.bunny-img {
   width: 100%;
   height: auto;
   display: block;
+  filter: drop-shadow(0 8px 12px rgba(124, 45, 18, 0.12));
 }
 
 .float-layer {
   position: absolute;
-  top: 6%;
-  left: 20%;
-  width: 40%;
-  height: 40%;
+  top: -8%;
+  left: 32%;
+  width: 50%;
+  height: 35%;
   pointer-events: none;
 }
 
 .money-pop {
   position: absolute;
-  left: 20%;
+  left: 10%;
   top: 20%;
   color: #ea580c;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 15px;
   white-space: nowrap;
   animation: floatUp 1s ease-out forwards;
 }
@@ -139,35 +143,18 @@ button, input { font: inherit; }
   border-radius: 999px;
 }
 
-.is-working .bunny {
+.is-working .bunny-img {
   animation: bob 1s ease-in-out infinite;
-  transform-origin: 110px 160px;
 }
 
-.is-working .arm-left { animation: typeLeft 0.35s ease-in-out infinite alternate; }
-.is-working .arm-right { animation: typeRight 0.35s ease-in-out infinite alternate 0.12s; }
-
-.is-resting .bunny {
-  transform: rotate(-3deg);
-  transform-origin: 110px 160px;
-  opacity: 0.85;
+.is-resting .bunny-img {
+  opacity: 0.78;
+  transform: rotate(-2deg);
 }
-
-.is-resting .arm { opacity: 0.45; }
 
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-@keyframes typeLeft {
-  from { transform: translateY(0); }
-  to { transform: translateY(3px); }
-}
-
-@keyframes typeRight {
-  from { transform: translateY(2px); }
-  to { transform: translateY(-1px); }
+  50% { transform: translateY(-4px); }
 }
 
 /* 设置弹窗 */
@@ -298,6 +285,6 @@ button, input { font: inherit; }
 
 @media (max-width: 480px) {
   .clock { font-size: 15px; margin-top: 60px; }
-  .money-value { font-size: 46px; }
+  .money-value { font-size: 56px; }
   .money-meta { flex-direction: column; gap: 8px; }
 }
