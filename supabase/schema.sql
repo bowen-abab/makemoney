@@ -11,6 +11,9 @@ create table if not exists public.user_settings (
   updated_at timestamptz not null default now()
 );
 
+-- 关键：给登录用户授予表权限，否则 RLS 策略再对也会被数据库拒绝（403）
+grant select, insert, update on public.user_settings to authenticated;
+
 alter table public.user_settings enable row level security;
 
 drop policy if exists "Users can read own settings" on public.user_settings;
