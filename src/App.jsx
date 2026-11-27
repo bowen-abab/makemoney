@@ -1,38 +1,65 @@
 import { useEffect, useState } from 'react'
-import { isSupabaseConfigured, supabase } from './lib/supabase.js'
+import SettingsModal from './components/SettingsModal.jsx'
+import BunnyScene from './components/BunnyScene.jsx'
+import { loadConfig, saveConfig, getEarnedStats, formatMoney, formatSmall } from './lib/pay.js'
+
+const WEEK_NAMES = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+
+function formatClock(date) {
+  const pad = (value) => String(value).padStart(2, '0')
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${WEEK_NAMES[date.getDay()]} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+}
 
 export default function App() {
-  const [sessionReady, setSessionReady] = useState(false)
+  const [config, setConfig] = useState(() => loadConfig())
+  const [now, setNow] = useState(() => new Date())
+  const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
-    if (!supabase) return
-    supabase.auth.getSession().then(() => setSessionReady(true))
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
   }, [])
 
+  const stats = getEarnedStats(now, config)
+  const working = stats.status === 'working'
+
+  const handleSave = (nextConfig) => {
+    saveConfig(nextConfig)
+    setConfig(nextConfig)
+    setShowSettings(false)
+  }
+
   return (
-    <main className="container">
-      <div className="badge">Vite + React + Supabase</div>
-      <h1>makemoney</h1>
-      <p className="subtitle">前端项目骨架已就绪。后端使用 Supabase，下一步接入你的业务功能。</p>
+    <div className="app-shell">
+      <button
+        className="settings-btn"
+        onClick={() => setShowSettings(true)}
+        aria-label="修改设置"
+        title="修改设置"
+      >
+        ⚙
+      </button>
 
-      <div className={`status ${isSupabaseConfigured ? 'ok' : 'warn'}`}>
-        <strong>Supabase 配置：</strong>
-        {isSupabaseConfigured
-          ? `已读取环境变量${sessionReady ? '，客户端初始化完成。' : '，正在初始化…'}`
-          : '未配置。请复制 .env.example 为 .env 并填入 URL 和 publishable key。'}
-      </div>
+      <header className="clock">{formatClock(now)}</header>
 
-      <section className="card">
-        <h2>下一步</h2>
-        <ol>
-          <li>在 Supabase 创建项目，拿到 Project URL 和 anon key。</li>
-          <li>在项目根目录创建 <code>.env</code>，填入上面两个值。</li>
-          <li>运行 <code>npm install &amp;&amp; npm run dev</code> 启动前端。</li>
-          <li>用 Supabase Auth / Database / Storage 接入你的功能。</li>
-        </ol>
-      </section>
+      <main className="money-panel">
+        <p className="money-label">本月已赚</p>
+        <h1 className="money-value">¥ {formatMoney(stats.earned)}</h1>
+        <div className="money-meta">
+          <span>每秒 ≈ ¥{formatSmall(stats.perSecond)}</span>
+          <span className={`status-pill ${working ? 'on' : 'off'}`}>{stats.label}</span>
+        </div>
+      </main>
 
-      <p className="tip">提醒：service_role key 永远不要写进前端代码或提交到 GitHub。</p>
-    </main>
+      <BunnyScene working={working} perSecond={stats.perSecond} tick={now.getTime()} />
+
+      {showSettings && (
+        <SettingsModal
+          config={config}
+          onClose={() => setShowSettings(false)}
+          onSave={handleSave}
+        />
+      )}
+    </div>
   )
 }

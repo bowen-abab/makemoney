@@ -1,13 +1,29 @@
 # makemoney
 
-前端：Vite + React　后端：Supabase
+一个暖色动漫风的「每秒赚多少钱」页面：输入月薪、上班日、上下班时间和午休时长，实时显示本月已赚金额，小兔子每秒飘出 `+¥`。
+
+当前版本：**纯前端 + localStorage**，不需要登录即可使用。后端预留 Supabase，后续可做登录同步。
+
+## 功能
+
+- 顶部实时日期时间
+- 中间「本月已赚」每秒刷新，非工作时段自动暂停
+- 底部小兔子电脑桌插画，每秒飘出 `+¥`
+- 右上角 ⚙ 按钮打开设置：月薪、每周上班日（点击标亮）、上下班时间、午休时长
+- 配置保存在浏览器 localStorage，刷新不丢
+
+## 计算方式
+
+- 按**本月实际工作日**计算
+- 每日工作秒数 =（下班时间 − 上班时间 − 午休时长）× 60
+- 每秒单价 = 月薪 ÷（本月工作日 × 每日工作秒数）
+- 本月已赚 = 每秒单价 × 本月已工作秒数
+- 暂不支持跨天工作
 
 ## 本地开发
 
 ```bash
 npm install
-cp .env.example .env
-# 编辑 .env，填入 Supabase Project URL 和 anon key
 npm run dev
 ```
 
@@ -17,20 +33,23 @@ npm run dev
 npm run build
 ```
 
-## 安全提醒
+## Supabase（后续登录同步用）
 
-- 前端使用 Supabase 的 **Publishable key**（`sb_publishable_...`）；老项目的 anon key 也兼容。
-- `secret key` / `service_role` key 拥有管理员权限，绝不能写进前端代码、`.env` 或提交到 GitHub。
-- 在 Supabase 控制台为数据表开启 Row Level Security (RLS)，并按用户隔离数据。
-
-## 仓库说明
-
-该仓库已通过 GitHub 连接器完成首次代码上传。后续本地推送需要配置 Git 凭据：
+前端使用 Publishable key（`sb_publishable_...`）；老项目的 anon key 也兼容。
 
 ```bash
-git config --global credential.helper manager
-git remote add origin https://github.com/bowen-abab/makemoney.git
+cp .env.example .env
+# 填入 VITE_SUPABASE_URL 和 VITE_SUPABASE_PUBLISHABLE_KEY
+```
+
+`secret key` / `service_role` key 绝不能写进前端代码、`.env` 或提交到 GitHub。
+
+## GitHub 推送
+
+远程仓库尚未创建。请在 GitHub 手动创建空仓库 `makemoney` 后执行：
+
+```bash
 git push -u origin main
 ```
 
-推送时会调用浏览器/系统登录窗口，使用你的 GitHub 账号授权一次即可。
+首次推送会调用浏览器/系统登录窗口，使用 GitHub 账号授权一次即可。
