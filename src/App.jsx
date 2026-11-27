@@ -19,7 +19,7 @@ export default function App() {
         <strong>Supabase 配置：</strong>
         {isSupabaseConfigured
           ? `已读取环境变量${sessionReady ? '，客户端初始化完成。' : '，正在初始化…'}`
-          : '未配置。请复制 .env.example 为 .env 并填入 URL 和 anon key。'}
+          : '未配置。请复制 .env.example 为 .env 并填入 URL 和 publishable key。'}
       </div>
 
       <section className="card">
