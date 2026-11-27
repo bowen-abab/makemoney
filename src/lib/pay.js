@@ -143,6 +143,38 @@ export function getEarnedStats(date, config) {
   }
 }
 
+export function formatDuration(seconds) {
+  const total = Math.max(0, Math.floor(Number(seconds || 0)))
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  const secs = total % 60
+  if (hours > 0) return `${hours}小时${String(minutes).padStart(2, '0')}分${String(secs).padStart(2, '0')}秒`
+  if (minutes > 0) return `${minutes}分${String(secs).padStart(2, '0')}秒`
+  return `${secs}秒`
+}
+
+export function getCountdownInfo(date, config) {
+  const workStatus = getWorkStatus(date, config)
+
+  if (workStatus.status === 'working' || workStatus.status === 'break') {
+    return {
+      label: '距离下班',
+      text: formatDuration(workStatus.dailySeconds - workStatus.workingSecondsToday),
+    }
+  }
+
+  const nowMinutes = date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60
+  const start = timeToMinutes(config.startTime)
+
+  if (workStatus.status === 'before') {
+    return { label: '距离上班', text: formatDuration((start - nowMinutes) * 60) }
+  }
+  if (workStatus.status === 'after') {
+    return { label: '今日状态', text: '已下班' }
+  }
+  return { label: '今日状态', text: '休息日' }
+}
+
 export function formatMoney(value) {
   return Number(value || 0).toLocaleString('zh-CN', {
     minimumFractionDigits: 2,

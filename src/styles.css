@@ -214,6 +214,49 @@ button, input { font: inherit; }
   letter-spacing: 0.02em;
 }
 
+/* ---------- 本月进度条 ---------- */
+.progress-block { margin-top: 22px; }
+
+.progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.progress-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-track {
+  height: 7px;
+  margin-top: 9px;
+  border-radius: 999px;
+  background: var(--accent-wash);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+}
+
+.progress-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .rule {
   height: 1px;
   background: linear-gradient(90deg, var(--line), transparent);
@@ -250,6 +293,11 @@ button, input { font: inherit; }
   font-weight: 600;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+}
+
+.metric strong.countdown-value {
+  font-size: 16px;
+  white-space: nowrap;
 }
 
 /* ---------- 兔子卡 ---------- */
@@ -475,9 +523,13 @@ button, input { font: inherit; }
   .topbar-right { justify-content: flex-start; }
   .hero { padding: 28px 24px 26px; }
   .amount { font-size: clamp(50px, 14vw, 74px); }
-  .metrics { grid-template-columns: 1fr; gap: 18px; }
-  .metric { padding-left: 0; }
-  .metric + .metric::before { display: none; }
+  .metrics { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .metric { padding-left: 12px; }
+  .metric:first-child { padding-left: 0; }
+  .metric + .metric::before { display: block; }
+  .metric strong { font-size: 16px; }
+  .metric strong.countdown-value { font-size: 13px; }
+  .progress-caption { font-size: 10px; }
   .companion { padding: 22px 20px; gap: 20px; }
   .bunny-frame { width: 96px; height: 96px; }
   .companion img { width: 86px; height: 86px; }

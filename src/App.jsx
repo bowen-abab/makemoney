@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import SettingsModal from './components/SettingsModal.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import BunnyScene from './components/BunnyScene.jsx'
-import { loadConfig, saveConfig, getEarnedStats, formatMoney, formatSmall } from './lib/pay.js'
+import { loadConfig, saveConfig, getEarnedStats, getCountdownInfo, formatMoney, formatSmall } from './lib/pay.js'
 import { supabase, isSupabaseConfigured } from './lib/supabase.js'
 
 const WEEK_NAMES = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
@@ -101,6 +101,10 @@ export default function App() {
 
   const stats = getEarnedStats(now, config)
   const todayEarned = stats.workingSecondsToday * stats.perSecond
+  const countdown = getCountdownInfo(now, config)
+  const monthProgress = Number(config.salary) > 0
+    ? Math.min(100, Math.max(0, (stats.earned / Number(config.salary)) * 100))
+    : 0
 
   useEffect(() => {
     if (stats.status !== 'working') return undefined
@@ -171,6 +175,19 @@ export default function App() {
           <span className="yen">¥</span>{formatMoney(stats.earned)}
         </h1>
         <p className="amount-note">按本月实际工作日与有效工时计算</p>
+
+        <div className="progress-block">
+          <div className="progress-head">
+            <span>本月进度</span>
+            <span className="progress-pct">{monthProgress.toFixed(1)}%</span>
+          </div>
+          <div className="progress-track"><div className="progress-fill" style={{ width: `${monthProgress}%` }} /></div>
+          <div className="progress-caption">
+            <span>¥{formatMoney(stats.earned)} / ¥{formatMoney(config.salary)}</span>
+            <span>本月 {stats.totalWorkdays} 个工作日</span>
+          </div>
+        </div>
+
         <div className="rule" />
         <div className="metrics">
           <div className="metric">
@@ -182,8 +199,8 @@ export default function App() {
             <strong>¥{formatMoney(todayEarned)}</strong>
           </div>
           <div className="metric">
-            <span>本月工作日</span>
-            <strong>{stats.totalWorkdays} 天</strong>
+            <span>{countdown.label}</span>
+            <strong className="countdown-value">{countdown.text}</strong>
           </div>
         </div>
       </section>
