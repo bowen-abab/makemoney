@@ -21,7 +21,7 @@ export default function App() {
   }, [])
 
   const stats = getEarnedStats(now, config)
-  const working = stats.status === 'working'
+  const todayEarned = stats.workingSecondsToday * stats.perSecond
 
   const handleSave = (nextConfig) => {
     saveConfig(nextConfig)
@@ -30,32 +30,43 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
-      <button
-        className="settings-btn"
-        onClick={() => setShowSettings(true)}
-        aria-label="修改设置"
-        title="修改设置"
-      >
-        ⚙
-      </button>
-
-      <header className="clock">{formatClock(now)}</header>
-
-      <main className="money-panel">
-        <p className="money-label">本月已赚</p>
-        <h1 className="money-value">¥ {formatMoney(stats.earned)}</h1>
-        <div className="money-meta">
-          <span>每秒 ≈ ¥{formatSmall(stats.perSecond)}</span>
+    <div className="page">
+      <header className="topbar">
+        <div className="brand">
+          MAKEMONEY
+          <span>把时间换算成收入</span>
         </div>
-      </main>
+        <div className="topbar-right">
+          <time>{formatClock(now)}</time>
+          <button className="text-btn" onClick={() => setShowSettings(true)}>
+            设置
+          </button>
+        </div>
+      </header>
 
-      <BunnyScene
-        working={working}
-        label={stats.label}
-        perSecond={stats.perSecond}
-        tick={now.getTime()}
-      />
+      <section className="card hero">
+        <p className="eyebrow">本月已赚</p>
+        <h1 className="amount">
+          <span className="yen">¥</span>{formatMoney(stats.earned)}
+        </h1>
+        <div className="rule" />
+        <div className="metrics">
+          <div className="metric">
+            <span>每秒</span>
+            <strong>¥{formatSmall(stats.perSecond)}</strong>
+          </div>
+          <div className="metric">
+            <span>今日已赚</span>
+            <strong>¥{formatMoney(todayEarned)}</strong>
+          </div>
+          <div className="metric">
+            <span>本月工作日</span>
+            <strong>{stats.totalWorkdays} 天</strong>
+          </div>
+        </div>
+      </section>
+
+      <BunnyScene label={stats.label} />
 
       {showSettings && (
         <SettingsModal
