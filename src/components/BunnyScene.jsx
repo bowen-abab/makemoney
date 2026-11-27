@@ -1,11 +1,11 @@
-export default function BunnyScene({ label }) {
+export default function BunnyScene({ label, image, desc }) {
   return (
     <section className="card companion">
-      <img src="/bunny.png" alt="动漫小兔子在电脑前工作" />
+      <img src={image} alt={`动漫小兔子：${label}`} />
       <div className="companion-text">
         <p className="eyebrow">工位状态</p>
         <h2>{label}</h2>
-        <p className="desc">它也在电脑前，陪你把这一秒变成收入。</p>
+        <p className="desc">{desc}</p>
       </div>
     </section>
   )
