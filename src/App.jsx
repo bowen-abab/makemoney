@@ -134,33 +134,43 @@ export default function App() {
     <div className="page">
       <header className="topbar">
         <div className="brand">
-          MAKEMONEY
-          <span>把时间换算成收入</span>
+          <span className="brand-mark">¥</span>
+          <span className="brand-copy">
+            <strong>MAKEMONEY</strong>
+            <small>把时间换算成收入</small>
+          </span>
         </div>
         <div className="topbar-right">
-          <time>{formatClock(now)}</time>
+          <time className="clock">
+            <span className="live-dot" />
+            {formatClock(now)}
+          </time>
           {syncNote && <span className="sync-note">{syncNote}</span>}
           {isSupabaseConfigured && (
             user ? (
               <>
                 <span className="user-email" title={user.email}>{user.email.split('@')[0]}</span>
-                <button className="text-btn" onClick={handleSignOut}>退出</button>
+                <button className="pill-btn" onClick={handleSignOut}>退出</button>
               </>
             ) : (
-              <button className="text-btn" onClick={() => setShowAuth(true)}>登录</button>
+              <button className="pill-btn" onClick={() => setShowAuth(true)}>登录</button>
             )
           )}
-          <button className="text-btn" onClick={() => setShowSettings(true)}>
+          <button className="pill-btn primary" onClick={() => setShowSettings(true)}>
             设置
           </button>
         </div>
       </header>
 
       <section className="card hero">
-        <p className="eyebrow">本月已赚</p>
+        <div className="hero-head">
+          <span className="eyebrow">本月已赚</span>
+          <span className="live-tag"><i />实时累计</span>
+        </div>
         <h1 className="amount">
           <span className="yen">¥</span>{formatMoney(stats.earned)}
         </h1>
+        <p className="amount-note">按本月实际工作日与有效工时计算</p>
         <div className="rule" />
         <div className="metrics">
           <div className="metric">

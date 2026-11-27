@@ -14,6 +14,7 @@ export default function BunnyScene({ label, image, desc, popText, tick, working 
   return (
     <section className="card companion">
       <div className="bunny-frame">
+        <div className="bunny-halo" />
         <img src={image} alt={`动漫小兔子：${label}`} />
         <div className="float-layer">
           {pops.map((id, index) => (
@@ -29,7 +30,7 @@ export default function BunnyScene({ label, image, desc, popText, tick, working 
       </div>
       <div className="companion-text">
         <p className="eyebrow">工位状态</p>
-        <h2>{label}</h2>
+        <span className="status-badge">{label}</span>
         <p className="desc">{desc}</p>
       </div>
     </section>
