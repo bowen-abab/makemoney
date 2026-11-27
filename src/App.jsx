@@ -6,12 +6,22 @@ import { loadConfig, saveConfig, getEarnedStats, formatMoney, formatSmall } from
 const WEEK_NAMES = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
 
 const MOODS = [
-  { key: 'work', label: '努力工作中', image: '/bunny.png', desc: '它也在电脑前，陪你把这一秒变成收入。' },
-  { key: 'slack', label: '摸鱼中~', image: '/bunny-slack.png', desc: '伸个懒腰，偷偷放空一下。' },
-  { key: 'sleep', label: '打个盹~', image: '/bunny-sleep.png', desc: '眯一会儿，梦里也在赚钱。' },
-  { key: 'drink', label: '喝水中', image: '/bunny-drink.png', desc: '喝口水，继续搬砖。' },
-  { key: 'phone', label: '刷会儿手机', image: '/bunny-phone.png', desc: '偷偷看一眼，马上回来。' },
+  { key: 'work', label: '努力工作中', image: '/bunny.png', desc: '它也在电脑前，陪你把这一秒变成收入。', weight: 0.75 },
+  { key: 'slack', label: '摸鱼中~', image: '/bunny-slack.png', desc: '伸个懒腰，偷偷放空一下。', weight: 0.0625 },
+  { key: 'sleep', label: '打个盹~', image: '/bunny-sleep.png', desc: '眯一会儿，梦里也在赚钱。', weight: 0.0625 },
+  { key: 'drink', label: '喝水中', image: '/bunny-drink.png', desc: '喝口水，继续搬砖。', weight: 0.0625 },
+  { key: 'phone', label: '刷会儿手机', image: '/bunny-phone.png', desc: '偷偷看一眼，马上回来。', weight: 0.0625 },
 ]
+
+function pickMood() {
+  const value = Math.random()
+  let acc = 0
+  for (const item of MOODS) {
+    acc += item.weight
+    if (value < acc) return item.key
+  }
+  return 'work'
+}
 
 const REST_SCENE = {
   label: '',
@@ -40,12 +50,9 @@ export default function App() {
 
   useEffect(() => {
     if (stats.status !== 'working') return undefined
-    const pick = () => {
-      const next = MOODS[Math.floor(Math.random() * MOODS.length)]
-      setMood(next.key)
-    }
+    const pick = () => setMood(pickMood())
     pick()
-    const timer = setInterval(pick, 7000)
+    const timer = setInterval(pick, 5 * 60 * 1000)
     return () => clearInterval(timer)
   }, [stats.status])
 
@@ -96,7 +103,14 @@ export default function App() {
         </div>
       </section>
 
-      <BunnyScene label={scene.label} image={scene.image} desc={scene.desc} />
+      <BunnyScene
+        label={scene.label}
+        image={scene.image}
+        desc={scene.desc}
+        popText={`+¥${formatSmall(stats.perSecond)}`}
+        tick={now.getTime()}
+        working={stats.status === 'working'}
+      />
 
       {showSettings && (
         <SettingsModal
