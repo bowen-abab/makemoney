@@ -102,6 +102,32 @@ button, input { font: inherit; }
   box-shadow: 0 0 0 3px rgba(126, 163, 107, 0.15);
 }
 
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+}
+
+.lang-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lang-switch button.active {
+  background: var(--accent);
+  color: #fffaf4;
+}
+
 .pill-btn {
   border: 1px solid var(--line);
   background: var(--card);

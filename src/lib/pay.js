@@ -118,7 +118,7 @@ export function getWorkStatus(date, config) {
   const dailySeconds = dailyMinutes * 60
 
   if (!isWorkday(date, config)) {
-    return { status: 'rest', label: '休息日', workingSecondsToday: 0, dailySeconds }
+    return { status: 'rest', label: '休息日', labelKey: 'status.rest', workingSecondsToday: 0, dailySeconds }
   }
 
   const nowMinutes = date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60
@@ -129,10 +129,10 @@ export function getWorkStatus(date, config) {
   const lunchMinutes = Math.max(0, lunchEnd - lunchStart)
 
   if (nowMinutes < start) {
-    return { status: 'before', label: '还没上班', workingSecondsToday: 0, dailySeconds }
+    return { status: 'before', label: '还没上班', labelKey: 'status.before', workingSecondsToday: 0, dailySeconds }
   }
   if (nowMinutes >= end) {
-    return { status: 'after', label: '已下班', workingSecondsToday: dailySeconds, dailySeconds }
+    return { status: 'after', label: '已下班', labelKey: 'status.after', workingSecondsToday: dailySeconds, dailySeconds }
   }
 
   let workedMinutes
@@ -150,6 +150,7 @@ export function getWorkStatus(date, config) {
   return {
     status: inBreak ? 'break' : 'working',
     label: inBreak ? '午休中' : '努力工作中',
+    labelKey: inBreak ? 'status.break' : 'status.working',
     workingSecondsToday: workedMinutes * 60,
     dailySeconds,
   }
@@ -197,6 +198,7 @@ export function getCountdownInfo(date, config) {
   if (workStatus.status === 'working' || workStatus.status === 'break') {
     return {
       label: '距离下班',
+      labelKey: 'countdown.offWork',
       text: formatDuration(workStatus.dailySeconds - workStatus.workingSecondsToday),
     }
   }
@@ -205,12 +207,16 @@ export function getCountdownInfo(date, config) {
   const start = timeToMinutes(config.startTime)
 
   if (workStatus.status === 'before') {
-    return { label: '距离上班', text: formatDuration((start - nowMinutes) * 60) }
+    return {
+      label: '距离上班',
+      labelKey: 'countdown.startWork',
+      text: formatDuration((start - nowMinutes) * 60),
+    }
   }
   if (workStatus.status === 'after') {
-    return { label: '今日状态', text: '已下班' }
+    return { label: '今日状态', labelKey: 'countdown.today', text: '已下班', textKey: 'status.after' }
   }
-  return { label: '今日状态', text: '休息日' }
+  return { label: '今日状态', labelKey: 'countdown.today', text: '休息日', textKey: 'status.rest' }
 }
 
 export function formatMoney(value) {

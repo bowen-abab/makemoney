@@ -6,7 +6,7 @@ function toEmail(account) {
   return value.includes('@') ? value : `${value}@makemoney.app`
 }
 
-export default function AuthModal({ onClose }) {
+export default function AuthModal({ t, onClose }) {
   const [mode, setMode] = useState('login')
   const [account, setAccount] = useState('')
   const [password, setPassword] = useState('')
@@ -17,11 +17,11 @@ export default function AuthModal({ onClose }) {
   const submit = async () => {
     const name = account.trim()
     if (!name) {
-      setError('请输入账号')
+      setError(t('auth.errorAccount'))
       return
     }
     if (password.length < 6) {
-      setError('密码至少 6 位')
+      setError(t('auth.errorPassword'))
       return
     }
 
@@ -36,7 +36,7 @@ export default function AuthModal({ onClose }) {
         if (data.session) {
           onClose()
         } else {
-          setMessage('注册成功。请到 Supabase 关闭邮箱验证后，直接登录即可。')
+          setMessage(t('auth.registerSuccess'))
         }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
@@ -44,7 +44,7 @@ export default function AuthModal({ onClose }) {
         onClose()
       }
     } catch (err) {
-      setError(err.message || '操作失败，请重试')
+      setError(err.message || t('auth.failed'))
     } finally {
       setLoading(false)
     }
@@ -54,28 +54,28 @@ export default function AuthModal({ onClose }) {
     <div className="modal-backdrop" onMouseDown={onClose}>
       <div className="modal" onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true">
         <div className="modal-head">
-          <h2>{mode === 'login' ? '登录' : '注册账号'}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="关闭">×</button>
+          <h2>{t(mode === 'login' ? 'auth.loginTitle' : 'auth.registerTitle')}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('auth.close')}>×</button>
         </div>
 
         <label className="field">
-          <span>账号</span>
+          <span>{t('auth.account')}</span>
           <input
             type="text"
             value={account}
             onChange={(event) => setAccount(event.target.value)}
-            placeholder="给自己起个账号名"
+            placeholder={t('auth.accountPlaceholder')}
             autoComplete="username"
           />
         </label>
 
         <label className="field">
-          <span>密码</span>
+          <span>{t('auth.password')}</span>
           <input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="至少 6 位"
+            placeholder={t('auth.passwordPlaceholder')}
             autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
           />
         </label>
@@ -88,10 +88,10 @@ export default function AuthModal({ onClose }) {
             className="text-btn"
             onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); setMessage('') }}
           >
-            {mode === 'login' ? '没有账号？注册' : '已有账号？登录'}
+            {t(mode === 'login' ? 'auth.noAccount' : 'auth.hasAccount')}
           </button>
           <button className="btn primary" onClick={submit} disabled={loading}>
-            {loading ? '请稍候…' : mode === 'login' ? '登录' : '注册'}
+            {loading ? t('auth.waiting') : t(mode === 'login' ? 'auth.login' : 'auth.register')}
           </button>
         </div>
       </div>

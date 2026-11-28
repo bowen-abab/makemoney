@@ -6,7 +6,7 @@ const toMinutes = (time) => {
   return hour * 60 + minute
 }
 
-export default function SettingsModal({ config, onClose, onSave }) {
+export default function SettingsModal({ config, lang, t, onClose, onSave }) {
   const [form, setForm] = useState({ ...config, workdays: [...config.workdays] })
   const [error, setError] = useState('')
 
@@ -31,23 +31,23 @@ export default function SettingsModal({ config, onClose, onSave }) {
     const lunchEnd = toMinutes(form.lunchEnd)
 
     if (!Number.isFinite(salary) || salary <= 0) {
-      setError('请输入大于 0 的月薪')
+      setError(t('error.salary'))
       return
     }
     if (form.workdays.length === 0) {
-      setError('至少选择一天上班')
+      setError(t('error.workdays'))
       return
     }
     if (end <= start) {
-      setError('下班时间必须晚于上班时间（暂不支持跨天）')
+      setError(t('error.end'))
       return
     }
     if (lunchEnd <= lunchStart) {
-      setError('午休结束时间必须晚于开始时间')
+      setError(t('error.lunchEnd'))
       return
     }
     if (lunchStart < start || lunchEnd > end) {
-      setError('午休时间需在工作时段内')
+      setError(t('error.lunchRange'))
       return
     }
 
@@ -62,12 +62,12 @@ export default function SettingsModal({ config, onClose, onSave }) {
     <div className="modal-backdrop" onMouseDown={onClose}>
       <div className="modal" onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true">
         <div className="modal-head">
-          <h2>修改设置</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="关闭">×</button>
+          <h2>{t('settings.title')}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t('auth.close')}>×</button>
         </div>
 
         <label className="field">
-          <span>月薪（元）</span>
+          <span>{t('settings.salary')}</span>
           <input
             type="number"
             min="1"
@@ -78,7 +78,7 @@ export default function SettingsModal({ config, onClose, onSave }) {
         </label>
 
         <div className="field">
-          <span>每周上班日</span>
+          <span>{t('settings.workdays')}</span>
           <div className="day-picker">
             {WEEKDAYS.map((day) => (
               <button
@@ -87,41 +87,41 @@ export default function SettingsModal({ config, onClose, onSave }) {
                 className={`day-chip ${form.workdays.includes(day.index) ? 'active' : ''}`}
                 onClick={() => toggleDay(day.index)}
               >
-                {day.label}
+                {t(`weekday.${day.index}`)}
               </button>
             ))}
           </div>
-          <small>点击标亮需要上班的日子</small>
+          <small>{t('settings.workdaysHint')}</small>
         </div>
 
         <div className="field-row">
           <label className="field">
-            <span>上班时间</span>
+            <span>{t('settings.start')}</span>
             <input type="time" value={form.startTime} onChange={(event) => update('startTime', event.target.value)} />
           </label>
           <label className="field">
-            <span>下班时间</span>
+            <span>{t('settings.end')}</span>
             <input type="time" value={form.endTime} onChange={(event) => update('endTime', event.target.value)} />
           </label>
         </div>
 
         <div className="field-row">
           <label className="field">
-            <span>午休开始</span>
+            <span>{t('settings.lunchStart')}</span>
             <input type="time" value={form.lunchStart} onChange={(event) => update('lunchStart', event.target.value)} />
           </label>
           <label className="field">
-            <span>午休结束</span>
+            <span>{t('settings.lunchEnd')}</span>
             <input type="time" value={form.lunchEnd} onChange={(event) => update('lunchEnd', event.target.value)} />
           </label>
         </div>
-        <p className="field-hint">直接填写午休起止时间，系统会自动扣除这段时长。暂不支持跨天。</p>
+        <p className="field-hint">{t('settings.lunchHint')}</p>
 
         {error && <p className="form-error">{error}</p>}
 
         <div className="modal-actions">
-          <button className="btn ghost" onClick={onClose}>取消</button>
-          <button className="btn primary" onClick={handleSave}>保存</button>
+          <button className="btn ghost" onClick={onClose}>{t('settings.cancel')}</button>
+          <button className="btn primary" onClick={handleSave}>{t('settings.save')}</button>
         </div>
       </div>
     </div>
