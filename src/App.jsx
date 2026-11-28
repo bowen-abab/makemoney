@@ -14,11 +14,11 @@ const EN_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'
 const asset = (name) => `${import.meta.env.BASE_URL}${name}`
 
 const MOODS = [
-  { key: 'work', image: asset('bunny-work.webp'), weight: 0.75 },
-  { key: 'slack', image: asset('bunny-slack.webp'), weight: 0.0625 },
-  { key: 'sleep', image: asset('bunny-sleep.webp'), weight: 0.0625 },
-  { key: 'drink', image: asset('bunny-drink.webp'), weight: 0.0625 },
-  { key: 'phone', image: asset('bunny-phone.webp'), weight: 0.0625 },
+  { key: 'work', image: asset('bunny-work.webp'), weight: 0.2 },
+  { key: 'slack', image: asset('bunny-slack.webp'), weight: 0.2 },
+  { key: 'sleep', image: asset('bunny-sleep.webp'), weight: 0.2 },
+  { key: 'drink', image: asset('bunny-drink.webp'), weight: 0.2 },
+  { key: 'phone', image: asset('bunny-phone.webp'), weight: 0.2 },
 ]
 
 function pickMood() {
@@ -130,7 +130,7 @@ export default function App() {
     if (stats.status !== 'working') return undefined
     const pick = () => setMood(pickMood())
     pick()
-    const timer = setInterval(pick, 5 * 60 * 1000)
+    const timer = setInterval(pick, 60 * 1000)
     return () => clearInterval(timer)
   }, [stats.status])
 
