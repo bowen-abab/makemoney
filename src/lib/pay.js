@@ -182,24 +182,29 @@ export function getEarnedStats(date, config) {
   }
 }
 
-export function formatDuration(seconds) {
+export function formatDuration(seconds, lang = 'zh') {
   const total = Math.max(0, Math.floor(Number(seconds || 0)))
   const hours = Math.floor(total / 3600)
   const minutes = Math.floor((total % 3600) / 60)
   const secs = total % 60
+  if (lang === 'en') {
+    if (hours > 0) return `${hours}h ${String(minutes).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`
+    if (minutes > 0) return `${minutes}m ${String(secs).padStart(2, '0')}s`
+    return `${secs}s`
+  }
   if (hours > 0) return `${hours}小时${String(minutes).padStart(2, '0')}分${String(secs).padStart(2, '0')}秒`
   if (minutes > 0) return `${minutes}分${String(secs).padStart(2, '0')}秒`
   return `${secs}秒`
 }
 
-export function getCountdownInfo(date, config) {
+export function getCountdownInfo(date, config, lang = 'zh') {
   const workStatus = getWorkStatus(date, config)
 
   if (workStatus.status === 'working' || workStatus.status === 'break') {
     return {
       label: '距离下班',
       labelKey: 'countdown.offWork',
-      text: formatDuration(workStatus.dailySeconds - workStatus.workingSecondsToday),
+      text: formatDuration(workStatus.dailySeconds - workStatus.workingSecondsToday, lang),
     }
   }
 
@@ -210,7 +215,7 @@ export function getCountdownInfo(date, config) {
     return {
       label: '距离上班',
       labelKey: 'countdown.startWork',
-      text: formatDuration((start - nowMinutes) * 60),
+      text: formatDuration((start - nowMinutes) * 60, lang),
     }
   }
   if (workStatus.status === 'after') {

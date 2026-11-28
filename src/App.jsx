@@ -120,7 +120,7 @@ export default function App() {
 
   const stats = getEarnedStats(now, config)
   const todayEarned = stats.workingSecondsToday * stats.perSecond
-  const countdown = getCountdownInfo(now, config)
+  const countdown = getCountdownInfo(now, config, lang)
   const countdownText = countdown.textKey ? t(countdown.textKey) : countdown.text
   const monthProgress = Number(config.salary) > 0
     ? Math.min(100, Math.max(0, (stats.earned / Number(config.salary)) * 100))
