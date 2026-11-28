@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { WEEKDAYS } from '../lib/pay.js'
 
+const toMinutes = (time) => {
+  const [hour, minute] = String(time).split(':').map(Number)
+  return hour * 60 + minute
+}
+
 export default function SettingsModal({ config, onClose, onSave }) {
   const [form, setForm] = useState({ ...config, workdays: [...config.workdays] })
   const [error, setError] = useState('')
@@ -20,9 +25,10 @@ export default function SettingsModal({ config, onClose, onSave }) {
 
   const handleSave = () => {
     const salary = Number(form.salary)
-    const breakMinutes = Number(form.breakMinutes)
-    const [startH, startM] = form.startTime.split(':').map(Number)
-    const [endH, endM] = form.endTime.split(':').map(Number)
+    const start = toMinutes(form.startTime)
+    const end = toMinutes(form.endTime)
+    const lunchStart = toMinutes(form.lunchStart)
+    const lunchEnd = toMinutes(form.lunchEnd)
 
     if (!Number.isFinite(salary) || salary <= 0) {
       setError('请输入大于 0 的月薪')
@@ -32,19 +38,22 @@ export default function SettingsModal({ config, onClose, onSave }) {
       setError('至少选择一天上班')
       return
     }
-    if (!Number.isFinite(breakMinutes) || breakMinutes < 0) {
-      setError('午休时长不能为负数')
+    if (end <= start) {
+      setError('下班时间必须晚于上班时间（暂不支持跨天）')
       return
     }
-    if (endH * 60 + endM <= startH * 60 + startM) {
-      setError('下班时间必须晚于上班时间（暂不支持跨天）')
+    if (lunchEnd <= lunchStart) {
+      setError('午休结束时间必须晚于开始时间')
+      return
+    }
+    if (lunchStart < start || lunchEnd > end) {
+      setError('午休时间需在工作时段内')
       return
     }
 
     onSave({
       ...form,
       salary,
-      breakMinutes,
       workdays: [...form.workdays].sort((a, b) => a - b),
     })
   }
@@ -96,18 +105,17 @@ export default function SettingsModal({ config, onClose, onSave }) {
           </label>
         </div>
 
-        <label className="field">
-          <span>午休时长（分钟）</span>
-          <input
-            type="number"
-            min="0"
-            max="480"
-            step="10"
-            value={form.breakMinutes}
-            onChange={(event) => update('breakMinutes', event.target.value)}
-          />
-          <small>按工作时段中间自动扣除，暂不支持跨天工作</small>
-        </label>
+        <div className="field-row">
+          <label className="field">
+            <span>午休开始</span>
+            <input type="time" value={form.lunchStart} onChange={(event) => update('lunchStart', event.target.value)} />
+          </label>
+          <label className="field">
+            <span>午休结束</span>
+            <input type="time" value={form.lunchEnd} onChange={(event) => update('lunchEnd', event.target.value)} />
+          </label>
+        </div>
+        <p className="field-hint">直接填写午休起止时间，系统会自动扣除这段时长。暂不支持跨天。</p>
 
         {error && <p className="form-error">{error}</p>}
 

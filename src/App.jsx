@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import SettingsModal from './components/SettingsModal.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import BunnyScene from './components/BunnyScene.jsx'
-import { loadConfig, saveConfig, getEarnedStats, getCountdownInfo, formatMoney, formatSmall } from './lib/pay.js'
+import { loadConfig, saveConfig, normalizeConfig, getBreakMinutes, getEarnedStats, getCountdownInfo, formatMoney, formatSmall } from './lib/pay.js'
 import { supabase, isSupabaseConfigured } from './lib/supabase.js'
 
 const WEEK_NAMES = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
@@ -46,19 +46,24 @@ function toRemoteRow(user, config) {
     workdays: config.workdays,
     start_time: config.startTime,
     end_time: config.endTime,
-    break_minutes: config.breakMinutes,
+    // 同时写入新字段与旧字段：新客户端用起止时间，旧客户端仍可读到午休时长
+    lunch_start: config.lunchStart,
+    lunch_end: config.lunchEnd,
+    break_minutes: getBreakMinutes(config),
     updated_at: new Date().toISOString(),
   }
 }
 
 function fromRemoteRow(row) {
-  return {
-    salary: Number(row.salary),
+  return normalizeConfig({
+    salary: row.salary,
     workdays: Array.isArray(row.workdays) ? row.workdays : [],
     startTime: row.start_time,
     endTime: row.end_time,
-    breakMinutes: Number(row.break_minutes),
-  }
+    lunchStart: row.lunch_start,
+    lunchEnd: row.lunch_end,
+    breakMinutes: row.break_minutes,
+  })
 }
 
 export default function App() {

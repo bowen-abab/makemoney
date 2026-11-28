@@ -13,27 +13,68 @@ export const DEFAULT_CONFIG = {
   workdays: [1, 2, 3, 4, 5],
   startTime: '09:00',
   endTime: '18:00',
-  breakMinutes: 60,
+  lunchStart: '12:00',
+  lunchEnd: '13:00',
 }
 
 const STORAGE_KEY = 'makemoney.config.v1'
 
+function timeToMinutes(time) {
+  const [hour, minute] = String(time || '').split(':').map(Number)
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return 0
+  return hour * 60 + minute
+}
+
+function minutesToTime(minutes) {
+  const total = Math.max(0, Math.round(minutes))
+  const hours = Math.floor(total / 60)
+  const mins = total % 60
+  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+}
+
+// 兼容旧配置：以前是「午休时长」，按工作时段居中换算成开始/结束时间
+function legacyBreakWindow(start, end, breakMinutes) {
+  const span = Math.max(0, end - start)
+  const minutes = Math.max(0, Math.min(Number(breakMinutes) || 0, span))
+  const breakStart = start + (span - minutes) / 2
+  return {
+    lunchStart: minutesToTime(breakStart),
+    lunchEnd: minutesToTime(breakStart + minutes),
+  }
+}
+
+export function normalizeConfig(input = {}) {
+  const salary = Number(input.salary)
+  const startTime = input.startTime || DEFAULT_CONFIG.startTime
+  const endTime = input.endTime || DEFAULT_CONFIG.endTime
+  const start = timeToMinutes(startTime)
+  const end = timeToMinutes(endTime)
+
+  let lunchStart = input.lunchStart
+  let lunchEnd = input.lunchEnd
+  if (!lunchStart || !lunchEnd || timeToMinutes(lunchEnd) <= timeToMinutes(lunchStart)) {
+    const legacy = legacyBreakWindow(start, end, input.breakMinutes ?? 60)
+    lunchStart = legacy.lunchStart
+    lunchEnd = legacy.lunchEnd
+  }
+
+  return {
+    salary: Number.isFinite(salary) && salary > 0 ? salary : DEFAULT_CONFIG.salary,
+    workdays: Array.isArray(input.workdays) ? input.workdays : [...DEFAULT_CONFIG.workdays],
+    startTime,
+    endTime,
+    lunchStart,
+    lunchEnd,
+  }
+}
+
 export function loadConfig() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return DEFAULT_CONFIG
-    const parsed = JSON.parse(raw)
-    const salary = Number(parsed.salary)
-    const breakMinutes = Number(parsed.breakMinutes)
-    return {
-      ...DEFAULT_CONFIG,
-      ...parsed,
-      salary: Number.isFinite(salary) && salary > 0 ? salary : DEFAULT_CONFIG.salary,
-      workdays: Array.isArray(parsed.workdays) ? parsed.workdays : DEFAULT_CONFIG.workdays,
-      breakMinutes: Number.isFinite(breakMinutes) && breakMinutes >= 0 ? breakMinutes : DEFAULT_CONFIG.breakMinutes,
-    }
+    if (!raw) return normalizeConfig(DEFAULT_CONFIG)
+    return normalizeConfig(JSON.parse(raw))
   } catch {
-    return DEFAULT_CONFIG
+    return normalizeConfig(DEFAULT_CONFIG)
   }
 }
 
@@ -41,15 +82,14 @@ export function saveConfig(config) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
 }
 
-function timeToMinutes(time) {
-  const [hour, minute] = String(time).split(':').map(Number)
-  return hour * 60 + minute
+export function getBreakMinutes(config) {
+  return Math.max(0, timeToMinutes(config.lunchEnd) - timeToMinutes(config.lunchStart))
 }
 
 export function getDailyMinutes(config) {
   const start = timeToMinutes(config.startTime)
   const end = timeToMinutes(config.endTime)
-  return Math.max(0, end - start - Number(config.breakMinutes || 0))
+  return Math.max(0, end - start - getBreakMinutes(config))
 }
 
 export function isWorkday(date, config) {
@@ -84,7 +124,9 @@ export function getWorkStatus(date, config) {
   const nowMinutes = date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60
   const start = timeToMinutes(config.startTime)
   const end = timeToMinutes(config.endTime)
-  const breakMinutes = Number(config.breakMinutes || 0)
+  const lunchStart = timeToMinutes(config.lunchStart)
+  const lunchEnd = timeToMinutes(config.lunchEnd)
+  const lunchMinutes = Math.max(0, lunchEnd - lunchStart)
 
   if (nowMinutes < start) {
     return { status: 'before', label: '还没上班', workingSecondsToday: 0, dailySeconds }
@@ -93,21 +135,17 @@ export function getWorkStatus(date, config) {
     return { status: 'after', label: '已下班', workingSecondsToday: dailySeconds, dailySeconds }
   }
 
-  const workSpan = end - start
-  const breakStart = start + Math.max(0, (workSpan - breakMinutes) / 2)
-  const breakEnd = breakStart + breakMinutes
-
   let workedMinutes
-  if (nowMinutes <= breakStart) {
+  if (nowMinutes < lunchStart) {
     workedMinutes = nowMinutes - start
-  } else if (nowMinutes < breakEnd) {
-    workedMinutes = breakStart - start
+  } else if (nowMinutes < lunchEnd) {
+    workedMinutes = lunchStart - start
   } else {
-    workedMinutes = nowMinutes - start - breakMinutes
+    workedMinutes = nowMinutes - start - lunchMinutes
   }
 
   workedMinutes = Math.max(0, Math.min(workedMinutes, dailyMinutes))
-  const inBreak = nowMinutes >= breakStart && nowMinutes < breakEnd
+  const inBreak = nowMinutes >= lunchStart && nowMinutes < lunchEnd
 
   return {
     status: inBreak ? 'break' : 'working',

@@ -8,8 +8,14 @@ create table if not exists public.user_settings (
   start_time text not null default '09:00',
   end_time text not null default '18:00',
   break_minutes integer not null default 60,
+  lunch_start text not null default '12:00',
+  lunch_end text not null default '13:00',
   updated_at timestamptz not null default now()
 );
+
+-- 兼容已有表：如果之前只有午休时长，补上起止时间字段
+alter table public.user_settings add column if not exists lunch_start text not null default '12:00';
+alter table public.user_settings add column if not exists lunch_end text not null default '13:00';
 
 -- 关键：给登录用户授予表权限，否则 RLS 策略再对也会被数据库拒绝（403）
 grant select, insert, update on public.user_settings to authenticated;
