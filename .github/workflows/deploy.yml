@@ -26,7 +26,7 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          VITE_BASE: /makemoney/
+          VITE_BASE: /
           VITE_SUPABASE_URL: https://veoaltzzoytdqkfrekkn.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_KFjyecZb3cDc5PlhfPgBTw_u2tEa8Gr
       - uses: actions/configure-pages@v5
